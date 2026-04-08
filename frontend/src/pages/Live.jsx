@@ -289,6 +289,7 @@ export default function Live({ tick }) {
             <div className="absolute top-3 left-3 card px-3 py-2 bg-black/70 backdrop-blur">
               <div className="text-white text-sm font-bold">Live Stats</div>
               <div className="text-white/70 text-xs mt-1 space-y-1">
+                <div className="text-blue-300 font-semibold">📍 {tick?.camera_location || config?.camera_location || "Camera"}</div>
                 <div>Total: {counts.total} • Safe: <span className="text-green-400">{counts.safe}</span> • Check: <span className="text-yellow-400">{counts.check}</span> • Unsafe: <span className="text-red-400">{counts.unsafe}</span></div>
                 <div>FPS: {tick?.fps?.toFixed(1) || "0.0"} • Frame: {tick?.frame_id || 0}</div>
                 <div>Mode: {config?.mode || "demo"} • Status: {running ? "🟢 Active" : "⚪ Stopped"}</div>

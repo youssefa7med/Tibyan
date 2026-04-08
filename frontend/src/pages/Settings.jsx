@@ -123,6 +123,19 @@ export default function Settings() {
               </div>
             </div>
 
+            <div className="md:col-span-2">
+              <label className="text-white/70 text-sm font-semibold">📍 Camera Location/Name</label>
+              <input
+                value={cfg.camera_location || "Camera 1"}
+                onChange={e => set("camera_location", e.target.value)}
+                className="mt-2 w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-brand-500"
+                placeholder="e.g., Main Entrance, Warehouse A, Loading Dock..."
+              />
+              <div className="text-white/50 text-xs mt-2">
+                This location name will be displayed on the Live Monitor page for camera identification.
+              </div>
+            </div>
+
             <div>
               <label className="text-white/70 text-sm font-semibold">Mode</label>
               <select

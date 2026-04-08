@@ -69,7 +69,7 @@ except ImportError:
     YOLO_AVAILABLE = False
     logger.warning("YOLO not available - Install with: pip install ultralytics")
 
-APP_NAME = os.getenv("APP_NAME", "PPE Safety Monitoring System - Production")
+APP_NAME = os.getenv("APP_NAME", "Tibyan - Safety Monitoring System")
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent  # Go up from backend/app to project root
@@ -123,6 +123,9 @@ class AppConfig(BaseModel):
     
     mode: str = Field(default="real", description="demo or real")
     
+    # Camera location/identification
+    camera_location: str = Field(default="Camera 1", description="Location or name of camera")
+    
     # Model paths
     person_model_path: str = Field(default="yolov8n.pt", description="Path to person detection model")
     ppe_model_path: str = Field(default="best.pt", description="Path to PPE detection model")
@@ -165,7 +168,7 @@ def init_csvs():
         with open(LOG_CSV, "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
             w.writerow([
-                "timestamp", "frame_id", "person_id",
+                "timestamp", "camera_location", "frame_id", "person_id",
                 "x1", "y1", "x2", "y2",
                 "helmet", "vest", "status", "unsafe_counter",
                 "ema_score", "occluded", "quality_score"
@@ -276,7 +279,7 @@ class TelegramNotifierAPI:
             
             # Create caption
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            caption_text = generate_safety_alert_message(unsafe_count, total_persons, timestamp)
+            caption_text = generate_safety_alert_message(unsafe_count, total_persons, timestamp, location)
             
             # Send photo with caption
             url = f"https://api.telegram.org/bot{self.token}/sendPhoto"
@@ -304,10 +307,11 @@ telegram_api = TelegramNotifierAPI()
 def ai_enabled() -> bool:
     return os.getenv("AI_ENABLED", "false").lower() == "true"
 
-def generate_safety_alert_message(unsafe_count: int, total_persons: int, timestamp: str) -> str:
+def generate_safety_alert_message(unsafe_count: int, total_persons: int, timestamp: str, location: str = "Unknown") -> str:
     """Generate standardized safety alert message in English."""
     return (
-        f"⚠️ SAFETY ALERT - PPE VIOLATION DETECTED\n"
+        f"⚠️ SAFETY ALERT - TIBYAN VIOLATION DETECTED\n"
+        f"📍 Location: {location}\n"
         f"Unsafe Workers: {unsafe_count}\n"
         f"Total Persons: {total_persons}\n"
         f"Time: {timestamp}\n"
@@ -820,7 +824,7 @@ async def demo_loop():
             for pid, p in STATE.people.items():
                 x1, y1, x2, y2 = p["box"]
                 log_row = [
-                    timestamp, STATE.frame_id, pid,
+                    timestamp, config_state.camera_location, STATE.frame_id, pid,
                     x1, y1, x2, y2,
                     p["helmet"], p["vest"], p["status"], p["unsafe_counter"],
                     "1.000", False, "1.000"  # Demo values
@@ -864,7 +868,7 @@ async def demo_loop():
             }
             ai_text = generate_alert_caption_with_ai(ctx)
             msg = ai_text or generate_safety_alert_message(
-                unsafe_count, len(STATE.people), ctx['time']
+                unsafe_count, len(STATE.people), ctx['time'], config_state.camera_location
             )
 
             sent = False
@@ -884,6 +888,7 @@ async def demo_loop():
             "time": now_str(),
             "frame_id": STATE.frame_id,
             "fps": round(STATE.fps, 1),
+            "camera_location": config_state.camera_location,
             "counts": {
                 "total": len(STATE.people),
                 "safe": safe_count,
@@ -1548,7 +1553,7 @@ async def video_capture_loop():
                         occluded = STATE.occlusion_detector.is_occluded(np.array(box), all_person_boxes) if STATE.occlusion_detector else False
                         ema_score = STATE.ema_scores.get(pid, 1.0)
                         log_row = [
-                            timestamp, STATE.frame_id, pid,
+                            timestamp, config_state.camera_location, STATE.frame_id, pid,
                             int(x1), int(y1), int(x2), int(y2),
                             pdata["helmet"], pdata["vest"], pdata["status"], pdata["unsafe_counter"],
                             f"{ema_score:.3f}",
@@ -1597,7 +1602,7 @@ async def video_capture_loop():
                             alert_frame, 
                             unsafe_count, 
                             len(STATE.people),
-                            "Construction Site"
+                            config_state.camera_location
                         )
                     
                     push_alert(
@@ -1613,6 +1618,7 @@ async def video_capture_loop():
                     "time": now_str(),
                     "frame_id": STATE.frame_id,
                     "fps": round(STATE.fps, 1),
+                    "camera_location": config_state.camera_location,
                     "counts": {
                         "total": len(STATE.people),
                         "safe": safe_count,
@@ -1639,6 +1645,7 @@ async def video_capture_loop():
                         "time": now_str(),
                         "frame_id": STATE.frame_id,
                         "fps": round(STATE.fps, 1),
+                        "camera_location": config_state.camera_location,
                         "counts": {
                             "total": len(STATE.people) if STATE.people else 0,
                             "safe": 0,

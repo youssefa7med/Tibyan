@@ -20,7 +20,7 @@ export default function Topbar({ page, setPage }: TopbarProps) {
             <span className="text-brand-300 font-black text-lg">PPE</span>
           </div>
           <div>
-            <div className="text-white font-bold leading-tight text-lg">PPE Safety Monitoring</div>
+            <div className="text-white font-bold leading-tight text-lg">🛡️ Tibyan</div>
             <div className="text-white/60 text-xs">AI-Enhanced • Production Ready</div>
           </div>
         </div>

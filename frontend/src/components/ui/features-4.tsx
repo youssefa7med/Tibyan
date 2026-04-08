@@ -46,7 +46,7 @@ export function Features({ className = '' }: FeaturesProps) {
             The foundation for workplace safety monitoring
           </h2>
           <p className="text-white/70 text-lg">
-            PPE Safety Monitoring is evolving to be more than just detection. It supports an entire ecosystem 
+            Tibyan is evolving to be more than just detection. It supports an entire ecosystem 
             of APIs and platforms helping safety teams and businesses innovate.
           </p>
         </div>

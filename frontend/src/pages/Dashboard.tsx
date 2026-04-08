@@ -22,7 +22,7 @@ export default function Dashboard({ stats, tick }: DashboardProps) {
       id: 1,
       title: "System Initialized",
       date: "Start",
-      content: "PPE Safety Monitoring System started successfully.",
+      content: "Tibyan monitoring system started successfully.",
       category: "System",
       icon: Shield,
       relatedIds: [2],
@@ -106,7 +106,7 @@ export default function Dashboard({ stats, tick }: DashboardProps) {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-            <p className="text-white/60">Real-time PPE Safety Monitoring</p>
+            <p className="text-white/60">Real-time Safety Monitoring by Tibyan</p>
           </div>
           <button
             onClick={() => setShowTimeline(true)}

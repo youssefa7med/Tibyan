@@ -45,7 +45,7 @@ export default function AboutPage({ onBack }: AboutProps) {
           {/* Hero Section */}
           <div className="text-center space-y-6">
             <h1 className="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40">
-              About PPE Safety Monitoring
+              About Tibyan
             </h1>
             <p className="max-w-2xl mx-auto text-xl text-white/70 leading-relaxed">
               A production-ready AI system designed to enhance workplace safety through real-time 
@@ -152,7 +152,7 @@ export default function AboutPage({ onBack }: AboutProps) {
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 space-y-8">
               <div className="space-y-4">
                 <p className="text-white/80 text-lg leading-relaxed">
-                  Our <span className="font-semibold text-brand-400">AI-Enhanced PPE Safety Monitoring System</span> provides 
+                  <span className="font-semibold text-brand-400">Tibyan</span> - our <span className="font-semibold text-brand-400">AI-Enhanced Safety Monitoring</span> platform provides 
                   real-time, automated detection and monitoring of Personal Protective Equipment compliance using advanced 
                   computer vision and machine learning technologies.
                 </p>

@@ -74,7 +74,7 @@ export default function InfoPage({ onBack }: InfoProps) {
               Information & Resources
             </h1>
             <p className="max-w-2xl mx-auto text-xl text-white/70 leading-relaxed">
-              Everything you need to understand, deploy, and extend the PPE Safety Monitoring system.
+              Everything you need to understand, deploy, and extend the Tibyan safety monitoring system.
             </p>
           </div>
 
