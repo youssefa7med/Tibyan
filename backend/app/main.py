@@ -69,6 +69,20 @@ except ImportError:
     YOLO_AVAILABLE = False
     logger.warning("YOLO not available - Install with: pip install ultralytics")
 
+# Try to import torch for CUDA detection
+try:
+    import torch
+    TORCH_AVAILABLE = True
+    CUDA_AVAILABLE = torch.cuda.is_available()
+    if CUDA_AVAILABLE:
+        logger.info(f"CUDA available - GPU: {torch.cuda.get_device_name(0)}")
+    else:
+        logger.info("CUDA not available, will use CPU")
+except ImportError:
+    TORCH_AVAILABLE = False
+    CUDA_AVAILABLE = False
+    logger.warning("PyTorch not available")
+
 APP_NAME = os.getenv("APP_NAME", "Tibyan - Safety Monitoring System")
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -1216,27 +1230,22 @@ def get_device():
         return "cpu"
     
     try:
-        import torch
-        if torch.cuda.is_available():
-            device = "cuda"
+        # Use the CUDA_AVAILABLE flag set at module load time
+        if CUDA_AVAILABLE:
             logger.info(f"GPU detected: {torch.cuda.get_device_name(0)}")
-            logger.info(f"CUDA available: {torch.cuda.is_available()}")
-            return device
-        elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
-            device = "mps"  # Apple Silicon GPU
+            return "cuda"
+        elif TORCH_AVAILABLE and hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
             logger.info("Apple Silicon GPU (MPS) detected")
-            return device
+            return "mps"
         else:
-            device = "cpu"
             logger.info("No GPU detected, using CPU")
-            return device
+            return "cpu"
     except Exception as e:
         logger.warning(f"Error detecting device: {e}, defaulting to CPU")
         return "cpu"
 
-# ---------------- Model Loading ---------------- 
 def load_models():
-    """Load YOLO models for person and PPE detection with GPU support."""
+    """Load YOLO models for real mode."""
     if not YOLO_AVAILABLE:
         logger.warning("YOLO not available - cannot load models")
         return False
