@@ -1,0 +1,228 @@
+
+
+## 🧠 SYSTEM CODE RULES
+
+### PPE Detection & Safety Monitoring (Production)
+
+```
+You are working on a real-time PPE (Personal Protective Equipment) 
+Safety Monitoring system for construction sites.
+
+Follow ALL rules strictly.
+Do NOT make assumptions.
+Do NOT simplify logic.
+This is a production system.
+```
+
+---
+
+### 1. System Purpose
+
+```
+The system detects people, helmets, and safety vests from a video/RTSP stream.
+It determines whether each detected person is wearing proper PPE.
+A person is considered UNSAFE only after multiple consecutive unsafe frames.
+All detections and decisions must be logged.
+```
+
+---
+
+### 2. Mandatory Pipeline Order
+
+```
+Input Stream (Camera / RTSP / Video)
+→ Object Detection
+→ Person Tracking
+→ PPE Association Logic
+→ Temporal Decision Logic
+→ Visualization
+→ CSV Logging
+```
+
+❌ Do NOT skip or reorder stages.
+
+---
+
+### 3. Detection Rules
+
+```
+Use two detection models:
+- Person detector (class = person)
+- PPE detector (classes = helmet, vest)
+
+Detection outputs must be bounding boxes in xyxy format.
+All detections must be converted to CPU numpy arrays.
+```
+
+---
+
+### 4. Tracking Rules (CRITICAL)
+
+```
+Each person must have a persistent ID across frames.
+
+Tracking is done ONLY using IOU between PERSON bounding boxes.
+IOU must NEVER be used between:
+- Person ↔ Helmet
+- Person ↔ Vest
+
+If IOU between a detected person and an existing track
+is above a threshold → same person.
+Otherwise → create a new person ID.
+```
+
+---
+
+### 5. Person State Rules
+
+```
+Each tracked person must store:
+- person_id
+- bounding_box
+- unsafe_frame_counter
+```
+
+The unsafe_frame_counter:
+
+```
+- Increases only when PPE is missing
+- Resets immediately when person is SAFE
+```
+
+---
+
+### 6. PPE Association Rules (CORE LOGIC)
+
+```
+Helmet and vest association MUST be based on spatial rules,
+NOT IOU.
+```
+
+#### Body Zones Definition:
+
+```
+Person height = y2 - y1
+
+Helmet Zone:
+- Top 0% → 35% of person height
+
+Vest Zone:
+- 35% → 75% of person height
+```
+
+#### Association Logic:
+
+```
+A helmet is worn IF:
+- helmet center x is inside person width
+- helmet center y is inside Helmet Zone
+
+A vest is worn IF:
+- vest center x is inside person width
+- vest center y is inside Vest Zone
+```
+
+---
+
+### 7. Safety Decision Rules
+
+```
+SAFE:
+- Helmet = True
+- Vest = True
+→ unsafe_frame_counter = 0
+
+CHECK:
+- Missing helmet OR vest
+- unsafe_frame_counter < threshold
+
+UNSAFE:
+- Missing helmet OR vest
+- unsafe_frame_counter >= 3 consecutive frames
+```
+
+❌ Never classify UNSAFE from a single frame.
+
+---
+
+### 8. Temporal Consistency Rule
+
+```
+Decisions MUST be time-based, not frame-based.
+
+A person becomes UNSAFE only after
+3 consecutive unsafe frames.
+
+Temporary detection errors must not trigger alerts.
+```
+
+---
+
+### 9. Visualization Rules
+
+```
+Draw bounding boxes per person:
+- SAFE   → Green
+- CHECK  → Orange
+- UNSAFE → Red
+
+Each box must display:
+- Person ID
+- Current status
+```
+
+Visualization must not affect core logic.
+
+---
+
+### 10. CSV Logging Rules
+
+```
+Every frame MUST be logged.
+
+Each CSV row must contain:
+- timestamp
+- frame_id
+- person_id
+- bounding box (x1,y1,x2,y2)
+- helmet (True/False)
+- vest (True/False)
+- status (SAFE / CHECK / UNSAFE)
+
+Logging is append-only.
+```
+
+---
+
+### 11. Performance Rules
+
+```
+- Models must be loaded once (outside loop)
+- Fixed input resolution
+- Optional frame skipping allowed
+- Code must be RTSP-compatible
+```
+
+---
+
+### 12. Forbidden Actions (STRICT)
+
+```
+- Do NOT use IOU for PPE detection
+- Do NOT decide safety from one frame
+- Do NOT mix detection logic with decision logic
+- Do NOT remove tracking
+- Do NOT rely only on visualization
+```
+
+---
+
+### 13. Golden Rule
+
+```
+The model detects objects.
+The code decides safety.
+```
+
+---
+
