@@ -1256,9 +1256,13 @@ def load_models():
         logger.info(f"Loading person model from: {person_model_full}")
         logger.info(f"Loading PPE model from: {ppe_model_full}")
         
-        # Load models
-        STATE.person_model = YOLO(str(person_model_full))
-        STATE.ppe_model = YOLO(str(ppe_model_full))
+        # Load models with explicit device
+        STATE.person_model = YOLO(str(person_model_full), task='detect')
+        STATE.ppe_model = YOLO(str(ppe_model_full), task='detect')
+        
+        # Move models to device
+        STATE.person_model.to(device)
+        STATE.ppe_model.to(device)
         
         # Store device for inference
         STATE.device = device
